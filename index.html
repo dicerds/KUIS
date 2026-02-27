@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kuis Sistem Komputer & Sistem Operasi</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c27;
+    --border: #2a2a3d;
+    --accent: #7c6af7;
+    --accent2: #f76a8a;
+    --green: #4ade80;
+    --red: #f87171;
+    --text: #e8e8f0;
+    --muted: #888899;
+    --yellow: #fbbf24;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    background-image: radial-gradient(ellipse at 20% 20%, rgba(124,106,247,0.08) 0%, transparent 60%),
+                      radial-gradient(ellipse at 80% 80%, rgba(247,106,138,0.06) 0%, transparent 60%);
+  }
+
+  .header {
+    text-align: center;
+    padding: 48px 20px 32px;
+    position: relative;
+  }
+
+  .header-badge {
+    display: inline-block;
+    background: rgba(124,106,247,0.15);
+    border: 1px solid rgba(124,106,247,0.3);
+    color: var(--accent);
+    font-size: 11px;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+  }
+
+  h1 {
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 800;
+    line-height: 1.1;
+    background: linear-gradient(135deg, #fff 0%, var(--accent) 50%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+  }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 400;
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* TAB SELECTOR */
+  .tab-container {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    padding: 0 20px 40px;
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    padding: 12px 28px;
+    border-radius: 12px;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .tab-btn:hover { border-color: var(--accent); color: var(--text); }
+  .tab-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+    box-shadow: 0 0 24px rgba(124,106,247,0.4);
+  }
+
+  /* QUIZ SECTION */
+  .quiz-section { display: none; }
+  .quiz-section.active { display: block; }
+
+  /* SCORE BAR */
+  .score-bar {
+    max-width: 800px;
+    margin: 0 auto 32px;
+    padding: 0 20px;
+  }
+
+  .score-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .score-info {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    flex: 1;
+  }
+
+  .score-item {
+    text-align: center;
+  }
+
+  .score-num {
+    font-size: 28px;
+    font-weight: 800;
+    font-family: 'Space Mono', monospace;
+    line-height: 1;
+  }
+
+  .score-label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+  }
+
+  .progress-wrap {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .progress-track {
+    height: 8px;
+    background: var(--border);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 100px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  .progress-text {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    margin-top: 6px;
+  }
+
+  .reset-btn {
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .reset-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  /* QUESTIONS */
+  .questions-wrap {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .q-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    transition: border-color 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .q-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--border);
+    transition: background 0.3s;
+  }
+
+  .q-card.answered-correct::before { background: var(--green); }
+  .q-card.answered-wrong::before { background: var(--red); }
+  .q-card.answered-correct { border-color: rgba(74,222,128,0.25); }
+  .q-card.answered-wrong { border-color: rgba(248,113,113,0.25); }
+
+  .q-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .q-num {
+    min-width: 36px;
+    height: 36px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .q-text {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .option-btn {
+    width: 100%;
+    text-align: left;
+    padding: 14px 18px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    line-height: 1.5;
+  }
+
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: rgba(124,106,247,0.08);
+    transform: translateX(4px);
+  }
+
+  .option-label {
+    min-width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .option-btn.correct {
+    border-color: var(--green);
+    background: rgba(74,222,128,0.1);
+    color: var(--green);
+  }
+  .option-btn.correct .option-label {
+    background: var(--green);
+    color: #0a0a0f;
+  }
+
+  .option-btn.wrong {
+    border-color: var(--red);
+    background: rgba(248,113,113,0.1);
+    color: var(--red);
+  }
+  .option-btn.wrong .option-label {
+    background: var(--red);
+    color: #0a0a0f;
+  }
+
+  .option-btn.show-correct {
+    border-color: var(--green);
+    background: rgba(74,222,128,0.08);
+    color: var(--green);
+    opacity: 0.7;
+  }
+  .option-btn.show-correct .option-label {
+    background: var(--green);
+    color: #0a0a0f;
+  }
+
+  .option-btn:disabled { cursor: default; transform: none; }
+
+  /* EXPLANATION */
+  .explanation {
+    display: none;
+    margin-top: 16px;
+    padding: 16px 18px;
+    background: rgba(124,106,247,0.08);
+    border: 1px solid rgba(124,106,247,0.2);
+    border-radius: 12px;
+  }
+
+  .explanation.show { display: block; }
+
+  .explanation-title {
+    font-size: 11px;
+    font-family: 'Space Mono', monospace;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .explanation-text {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.7;
+    font-weight: 400;
+  }
+
+  .explanation-text strong { color: var(--text); }
+
+  /* STATUS ICON */
+  .status-icon {
+    display: none;
+    margin-left: auto;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .q-card.answered-correct .status-icon,
+  .q-card.answered-wrong .status-icon { display: block; }
+
+  /* CHEAT SHEET */
+  .cheat-section {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px 80px;
+  }
+
+  .cheat-title {
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 20px;
+    color: var(--yellow);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .cheat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 14px;
+  }
+
+  .cheat-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .cheat-q {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+    font-weight: 400;
+  }
+
+  .cheat-a {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cheat-a::before {
+    content: '✓';
+    font-size: 12px;
+    background: rgba(124,106,247,0.2);
+    padding: 2px 7px;
+    border-radius: 4px;
+  }
+
+  /* ALL DONE */
+  .all-done {
+    display: none;
+    max-width: 500px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .all-done.show { display: block; }
+
+  .done-emoji { font-size: 64px; margin-bottom: 16px; }
+  .done-title { font-size: 32px; font-weight: 800; margin-bottom: 8px; }
+  .done-score { font-size: 18px; color: var(--muted); font-family: 'Space Mono', monospace; }
+  .done-score span { color: var(--green); font-size: 28px; }
+
+  @media (max-width: 600px) {
+    .cheat-grid { grid-template-columns: 1fr; }
+    .score-card { flex-direction: column; }
+  }
+
+  /* INNER TABS */
+  .inner-tabs {
+    max-width: 800px;
+    margin: 0 auto 24px;
+    padding: 0 20px;
+    display: flex;
+    gap: 10px;
+  }
+
+  .inner-tab {
+    padding: 8px 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .inner-tab.active {
+    background: rgba(124,106,247,0.15);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .inner-panel { display: none; }
+  .inner-panel.active { display: block; }
+
+  .correct-color { color: var(--green); }
+  .wrong-color { color: var(--red); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">📚 Persiapan Kuis</div>
+  <h1>Sistem Komputer<br>& Sistem Operasi</h1>
+  <p class="subtitle">// Latihan Soal Interaktif · Pilih jawaban untuk belajar</p>
+</div>
+
+<div class="tab-container">
+  <button class="tab-btn active" onclick="switchQuiz('q02')">📦 Kuis 02 — Sistem Komputer</button>
+  <button class="tab-btn" onclick="switchQuiz('q03')">🖥️ Kuis 03 — Sistem Operasi</button>
+</div>
+
+<!-- KUIS 02 -->
+<div id="q02" class="quiz-section active">
+
+  <div class="inner-tabs">
+    <button class="inner-tab active" onclick="switchInner('q02','practice')">🎯 Latihan Soal</button>
+    <button class="inner-tab" onclick="switchInner('q02','cheat')">📋 Kunci Jawaban</button>
+  </div>
+
+  <div id="q02-practice" class="inner-panel active">
+    <div class="score-bar">
+      <div class="score-card">
+        <div class="score-info">
+          <div class="score-item">
+            <div class="score-num correct-color" id="q02-correct">0</div>
+            <div class="score-label">Benar</div>
+          </div>
+          <div class="score-item">
+            <div class="score-num wrong-color" id="q02-wrong">0</div>
+            <div class="score-label">Salah</div>
+          </div>
+          <div class="score-item">
+            <div class="score-num" style="color:var(--yellow)" id="q02-remain">15</div>
+            <div class="score-label">Sisa</div>
+          </div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-track"><div class="progress-fill" id="q02-prog"></div></div>
+          <div class="progress-text" id="q02-prog-text">0 / 15 dijawab</div>
+        </div>
+        <button class="reset-btn" onclick="resetQuiz('q02')">↺ Reset</button>
+      </div>
+    </div>
+    <div class="questions-wrap" id="q02-questions"></div>
+  </div>
+
+  <div id="q02-cheat" class="inner-panel">
+    <div class="cheat-section">
+      <div class="cheat-title">⚡ Kunci Jawaban Cepat</div>
+      <div class="cheat-grid" id="q02-cheat-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- KUIS 03 -->
+<div id="q03" class="quiz-section">
+
+  <div class="inner-tabs">
+    <button class="inner-tab active" onclick="switchInner('q03','practice')">🎯 Latihan Soal</button>
+    <button class="inner-tab" onclick="switchInner('q03','cheat')">📋 Kunci Jawaban</button>
+  </div>
+
+  <div id="q03-practice" class="inner-panel active">
+    <div class="score-bar">
+      <div class="score-card">
+        <div class="score-info">
+          <div class="score-item">
+            <div class="score-num correct-color" id="q03-correct">0</div>
+            <div class="score-label">Benar</div>
+          </div>
+          <div class="score-item">
+            <div class="score-num wrong-color" id="q03-wrong">0</div>
+            <div class="score-label">Salah</div>
+          </div>
+          <div class="score-item">
+            <div class="score-num" style="color:var(--yellow)" id="q03-remain">15</div>
+            <div class="score-label">Sisa</div>
+          </div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-track"><div class="progress-fill" id="q03-prog"></div></div>
+          <div class="progress-text" id="q03-prog-text">0 / 15 dijawab</div>
+        </div>
+        <button class="reset-btn" onclick="resetQuiz('q03')">↺ Reset</button>
+      </div>
+    </div>
+    <div class="questions-wrap" id="q03-questions"></div>
+  </div>
+
+  <div id="q03-cheat" class="inner-panel">
+    <div class="cheat-section">
+      <div class="cheat-title">⚡ Kunci Jawaban Cepat</div>
+      <div class="cheat-grid" id="q03-cheat-grid"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const Q02 = [
+  {
+    q: "Jalur bus di sistem komputer yang digunakan untuk mengirimkan sinyal kontrol antara prosesor dan komponen perangkat keras yang lain disebut ......",
+    opts: ["busway","bus alamat","bus kota","bus data","bus kendali"],
+    ans: 4,
+    exp: "<strong>Bus kendali (control bus)</strong> = jalur untuk sinyal perintah seperti baca/tulis, interrupt, clock. Ingat: <strong>Bus alamat</strong> = ke mana data dikirim | <strong>Bus data</strong> = isi datanya | <strong>Bus kendali</strong> = perintah/kontrolnya."
+  },
+  {
+    q: "Perangkat lunak yang disertakan pada perangkat keras dari produsennya dan berisi instruksi untuk inisiasi dan pengendalian operasi perangkat keras tersebut disebut ......",
+    opts: ["firmware","freeware","open source","operating system","software"],
+    ans: 0,
+    exp: "<strong>Firmware</strong> = software yang tertanam di dalam chip hardware. Contoh: BIOS di motherboard. Beda dengan OS karena firmware sudah ada dari pabrik dan hanya untuk menginisiasi hardware."
+  },
+  {
+    q: "Sistem bus dalam sistem komputer yang digunakan untuk mengirim informasi alamat memori atau modul I/O yang akan diakses untuk baca/tulis adalah ......",
+    opts: ["busway","bus alamat","bus kendali","bus data","bus kota"],
+    ans: 1,
+    exp: "<strong>Bus alamat</strong> = seperti GPS komputer, memberi tahu 'di mana' lokasi memori yang mau diakses. Beda dengan bus data yang membawa isi datanya."
+  },
+  {
+    q: "Berikut yang bukan merupakan memori yang bertipe non-volatile adalah ......",
+    opts: ["solid-state drive","hard disk drive","flash memory","Double Data Rate Synchronous Dynamic Random Access Memory","Digital Video Disc"],
+    ans: 3,
+    exp: "<strong>DDR SDRAM (RAM)</strong> adalah volatile — data hilang saat listrik mati. Non-volatile = data tetap ada: SSD, HDD, Flash Memory, DVD. <strong>Kunci:</strong> RAM = volatile, Storage = non-volatile."
+  },
+  {
+    q: "Register yang berfungsi untuk menyimpan alamat instruksi yang akan dieksekusi oleh prosesor adalah ......",
+    opts: ["Program Counter Register","Data Register","Instruction Register","Segment Register","Flag Register"],
+    ans: 0,
+    exp: "<strong>Program Counter (PC)</strong> = bookmark kode, menunjuk baris instruksi BERIKUTNYA yang akan dieksekusi. <strong>Instruction Register (IR)</strong> = menyimpan instruksi yang SEDANG dijalankan. <strong>Flag Register</strong> = menyimpan status hasil operasi."
+  },
+  {
+    q: "Berikut merupakan memori yang memiliki sifat volatile, kecuali ......",
+    opts: ["register","Video Random Access Memory","Random Access Memory","cache memory","Read Only Memory"],
+    ans: 4,
+    exp: "<strong>ROM = Non-volatile</strong> (data tetap walau mati). Semua RAM (termasuk VRAM, cache, register) = volatile. Ingat: <strong>RO</strong>M = <strong>Read Only</strong>, tidak bisa ditulis ulang → tidak hilang saat mati."
+  },
+  {
+    q: "Berikut ini yang tidak termasuk memori utama adalah ......",
+    opts: ["Random Access Memory","Solid State Drive","Register","Cache Memory","Read Only Memory"],
+    ans: 1,
+    exp: "<strong>SSD = penyimpanan sekunder</strong>, bukan memori utama. Memori utama = yang langsung diakses CPU: RAM, ROM, Register, Cache. SSD seperti HDD — kapasitas besar tapi lebih lambat dari memori utama."
+  },
+  {
+    q: "Perangkat lunak yang mengelola seluruh komponen dan sumber daya komputer, fisik, maupun non fisik agar dapat digunakan secara optimal dan mudah digunakan oleh pengguna adalah ......",
+    opts: ["firmware","aplikasi utilitas","aplikasi pengguna","sistem operasi","driver"],
+    ans: 3,
+    exp: "<strong>Sistem operasi</strong> = manajer semua sumber daya komputer. Firmware hanya untuk inisiasi hardware, driver untuk perangkat spesifik, aplikasi utilitas untuk tugas tertentu."
+  },
+  {
+    q: "Berikut ini adalah contoh perangkat keras dari sistem komputer, kecuali ......",
+    opts: ["Windows 11","RAM","GPU","prosesor","keyboard"],
+    ans: 0,
+    exp: "<strong>Windows 11 = software (OS)</strong>, bukan hardware. RAM, GPU, prosesor, keyboard = hardware fisik yang bisa dipegang."
+  },
+  {
+    q: "Berikut yang bukan merupakan komponen utama sistem komputer adalah ......",
+    opts: ["hardware","user","brainware","houseware","software"],
+    ans: 3,
+    exp: "Komponen utama sistem komputer: <strong>hardware + software + brainware</strong> (manusia/pengguna). <strong>Houseware</strong> = peralatan rumah tangga, tidak ada hubungannya dengan komputer!"
+  },
+  {
+    q: "Perangkat keras komputer yang bertugas mengeksekusi kode instruksi program adalah ......",
+    opts: ["SSD","CPU","RAM","USB","GPU"],
+    ans: 1,
+    exp: "<strong>CPU (Central Processing Unit)</strong> = otak komputer yang mengeksekusi instruksi. GPU = khusus grafis, RAM = menyimpan data sementara, SSD = penyimpanan permanen."
+  },
+  {
+    q: "Berikut adalah komponen utama dalam arsitektur komputer von Neumann, kecuali ......",
+    opts: ["BIOS","CPU (CU + ALU)","piranti output","piranti input","memori"],
+    ans: 0,
+    exp: "Von Neumann = CPU (CU+ALU) + Memori + Input + Output. <strong>BIOS bukan bagian von Neumann</strong> — BIOS adalah firmware modern yang baru ada di komputer generasi setelah konsep von Neumann."
+  },
+  {
+    q: "Memori yang memiliki kecepatan paling tinggi adalah ......",
+    opts: ["cache memory","register","RAM","solid-state drive","virtual memory"],
+    ans: 1,
+    exp: "Urutan kecepatan: <strong>Register > Cache > RAM > SSD > HDD > Virtual Memory</strong>. Register paling cepat karena berada DI DALAM chip CPU, jaraknya paling dekat dengan unit pemrosesan."
+  },
+  {
+    q: "Berikut ini adalah jenis instruksi yang dieksekusi oleh prosesor, kecuali ......",
+    opts: ["operasi kendali","pertukaran data antara prosesor dan memori utama","pemrosesan data oleh prosesor","pertukaran data antara prosesor dan modul I/O","rendering grafis"],
+    ans: 4,
+    exp: "<strong>Rendering grafis = tugas GPU</strong>, bukan CPU. Instruksi CPU: pertukaran data CPU↔memori, CPU↔I/O, pemrosesan data aritmatika/logika, dan operasi kendali (jump, branch)."
+  },
+  {
+    q: "Berikut beberapa faktor yang menunjukkan tingkat kemampuan prosesor, kecuali ......",
+    opts: ["banyak inti (core)","kecepatan clock","teknologi pembuatan (generasi)","besar cache","merk"],
+    ans: 4,
+    exp: "Kemampuan teknis prosesor diukur dari: jumlah core, clock speed, generasi/nm teknologi, dan besar cache. <strong>Merk bukan ukuran kemampuan</strong> — Intel dan AMD bisa setara tergantung spesifikasinya."
+  }
+];
+
+const Q03 = [
+  {
+    q: "Komponen sistem operasi yang bertugas sebagai pengelolaan berkas pada media penyimpan sekunder adalah ...",
+    opts: ["manajemen berkas","manajemen informasi","manajemen piranti I/O","manajemen proses","manajemen memori"],
+    ans: 0,
+    exp: "<strong>Manajemen berkas</strong> = mengatur file, folder, hak akses di HDD/SSD. Bedakan: manajemen memori = RAM, manajemen proses = CPU, manajemen I/O = perangkat masukan/keluaran."
+  },
+  {
+    q: "Berikut ini adalah contoh sistem operasi, kecuali ......",
+    opts: ["Intel","WebOS","Tizen","HarmonyOS","Vidaa"],
+    ans: 0,
+    exp: "<strong>Intel = produsen chip/hardware</strong>, bukan OS. WebOS (LG), Tizen (Samsung), HarmonyOS (Huawei), Vidaa (Hisense) = OS untuk Smart TV dan perangkat embedded."
+  },
+  {
+    q: "\"Menyembunyikan detail operasi pada perangkat keras yang rumit dan menyediakan abstraksi pengaksesan perangkat keras yang nyaman dan mudah dipahami user\" adalah fungsi sistem operasi sebagai .....",
+    opts: ["extended file","embedded system","extended machine","resources manager","game manager"],
+    ans: 2,
+    exp: "<strong>Extended machine</strong> = OS sebagai 'mesin yang diperluas' → menyembunyikan kerumitan hardware. <strong>Resources manager</strong> = mengelola sumber daya agar efisien. Ingat: extended machine = ABSTRAKSI, resources manager = EFISIENSI."
+  },
+  {
+    q: "Komponen sistem operasi yang mengelola beragam device ataupun piranti I/O yang berbeda karakteristiknya sehingga dapat digunakan dengan baik oleh proses-proses yang berjalan adalah ....",
+    opts: ["manajemen proses","manajemen informasi","manajemen berkas","manajemen memori","manajemen piranti I/O"],
+    ans: 4,
+    exp: "<strong>Manajemen piranti I/O</strong> = memastikan semua perangkat (printer, keyboard, mouse, USB) bisa dipakai oleh semua proses yang berjalan, meski tiap perangkat punya karakteristik berbeda."
+  },
+  {
+    q: "Program-program aplikasi berinteraksi atau memanggil rutin-rutin sistem operasi menggunakan .....",
+    opts: ["driver","Application Programming Interface Library","interrupt","procedure call","installer"],
+    ans: 1,
+    exp: "<strong>API (Application Programming Interface) Library</strong> = jembatan antara aplikasi dan OS. Aplikasi tidak boleh langsung akses hardware, harus lewat API OS. Contoh: Win32 API di Windows."
+  },
+  {
+    q: "Berikut adalah komponen-komponen utama sistem operasi, kecuali ....",
+    opts: ["manajemen berkas","manajemen informasi","manajemen piranti I/O","manajemen memori","manajemen proses"],
+    ans: 1,
+    exp: "Komponen utama OS: <strong>manajemen proses, memori, berkas, piranti I/O</strong>. <strong>Manajemen informasi BUKAN</strong> komponen standar OS — ini istilah yang dibuat-buat sebagai pengecoh."
+  },
+  {
+    q: "Program yang sedang dieksekusi disebut ....",
+    opts: ["proses","system call","interrupt","prosedur","routine"],
+    ans: 0,
+    exp: "<strong>Proses</strong> = program yang SEDANG BERJALAN di memori. Program = kode yang masih diam di storage. System call = cara program meminta layanan OS. Interrupt = sinyal untuk menghentikan sementara eksekusi."
+  },
+  {
+    q: "Sistem operasi Android menggunakan struktur .....",
+    opts: ["client-server","mikrokernel","monolitik","berlapis","hybrid (monolitik dan mikrokernel)"],
+    ans: 4,
+    exp: "<strong>Android = Hybrid</strong> → menggunakan kernel Linux (monolitik) yang dimodifikasi dengan elemen-elemen mikrokernel. Hampir semua OS modern (Android, macOS, Windows) = hybrid."
+  },
+  {
+    q: "Sistem operasi berupa resident monitor mulai dikenal pada masa perkembangan komputer generasi ke ......",
+    opts: ["5","4","3","1","2"],
+    ans: 4,
+    exp: "<strong>Generasi 2</strong> = era transistor (1955-1965). Pada masa ini muncul batch processing dan resident monitor (program pengontrol tetap di memori) untuk mengotomasi pengoperasian komputer."
+  },
+  {
+    q: "Konsep sistem operasi pertama kali diterapkan ke sistem komputer generasi ke .....",
+    opts: ["1","2","4","3","5"],
+    ans: 1,
+    exp: "<strong>Generasi 2</strong> = tempat pertama kali konsep OS diterapkan. Generasi 1 = mesin tabung vakum, dioperasikan manual tanpa OS. Generasi 2 = transistor + muncul batch monitor = cikal bakal OS."
+  },
+  {
+    q: "Sistem operasi MacOS menggunakan struktur ........",
+    opts: ["hybrid (monolitik dan mikrokernel)","client-server","mikrokernel","berlapis","monolitik"],
+    ans: 0,
+    exp: "<strong>macOS = Hybrid</strong> → XNU kernel = Mach (mikrokernel) + BSD (monolitik). Ingat: Android, macOS, Windows → semuanya <strong>HYBRID</strong>!"
+  },
+  {
+    q: "Sistem operasi Windows 10 menggunakan struktur ....",
+    opts: ["mikrokernel","client-server","monolitik","berlapis","hybrid (monolitik dan mikrokernel)"],
+    ans: 4,
+    exp: "<strong>Windows = Hybrid</strong> → NT kernel menggabungkan monolitik dan mikrokernel. Mudah diingat: <strong>Android + macOS + Windows = semua HYBRID</strong>. Hanya OS lawas/akademik yang murni monolitik atau berlapis."
+  },
+  {
+    q: "\"Mengelola sumber daya komputer sehingga komputer terpakai secara efisien, efektif dan aman\" merupakan fungsi sistem operasi sebagai .....",
+    opts: ["extended file","resources manager","game manager","embedded system","extended machine"],
+    ans: 1,
+    exp: "<strong>Resources manager</strong> = mengelola CPU, memori, storage, I/O agar efisien. Bedakan: <strong>Resources manager</strong> = efisiensi pengelolaan | <strong>Extended machine</strong> = abstraksi kemudahan akses."
+  },
+  {
+    q: "...... akan mengumpulkan job-job yang akan dikerjakan komputer sehingga bisa dieksekusi secara berurutan tanpa keterlibatan operator dan meminimalkan idle time CPU.",
+    opts: ["Sistem batch","Buffering","Resident monitor","Multiprogramming","SPOOLing"],
+    ans: 0,
+    exp: "<strong>Sistem batch</strong> = kumpulkan semua pekerjaan dulu, eksekusi satu per satu otomatis tanpa operator. Berbeda dengan SPOOLing yang khusus untuk antrian I/O (printer). Multiprogramming = banyak program berjalan bersamaan."
+  },
+  {
+    q: "Ketika komputer menerima permintaan pencetakan dokumen ke printer, komputer akan menyimpan dan mengelola antrian pencetakan dokumen sebelum dikirimkan ke printer. Komputer dapat melakukan hal tersebut karena menerapkan fitur ......",
+    opts: ["caching","deadlock","SPOOLing","error handling","batch"],
+    ans: 2,
+    exp: "<strong>SPOOLing</strong> (Simultaneous Peripheral Operations On-Line) = menyimpan antrian cetak di storage, dikirim ke printer satu per satu sehingga komputer bisa lanjut kerja lain. Analoginya: antrian nomor di bank."
+  }
+];
+
+const state = { q02: {}, q03: {} };
+
+function buildQuiz(id, data) {
+  const wrap = document.getElementById(`${id}-questions`);
+  wrap.innerHTML = '';
+  state[id] = {};
+
+  data.forEach((item, i) => {
+    const labels = ['A','B','C','D','E'];
+    const optBtns = item.opts.map((opt, j) => `
+      <button class="option-btn" onclick="answer('${id}',${i},${j})" id="${id}-q${i}-o${j}">
+        <span class="option-label">${labels[j]}</span>
+        ${opt}
+      </button>
+    `).join('');
+
+    wrap.innerHTML += `
+      <div class="q-card" id="${id}-q${i}">
+        <div class="q-header">
+          <div class="q-num">${String(i+1).padStart(2,'0')}</div>
+          <div class="q-text">${item.q}</div>
+          <div class="status-icon" id="${id}-q${i}-icon"></div>
+        </div>
+        <div class="options">${optBtns}</div>
+        <div class="explanation" id="${id}-q${i}-exp">
+          <div class="explanation-title">💡 Penjelasan</div>
+          <div class="explanation-text">${item.exp}</div>
+        </div>
+      </div>
+    `;
+  });
+
+  updateScore(id);
+}
+
+function answer(id, qIdx, optIdx) {
+  if (state[id][qIdx] !== undefined) return;
+  state[id][qIdx] = optIdx;
+
+  const data = id === 'q02' ? Q02 : Q03;
+  const correct = data[qIdx].ans;
+  const card = document.getElementById(`${id}-q${qIdx}`);
+  const icon = document.getElementById(`${id}-q${qIdx}-icon`);
+  const exp = document.getElementById(`${id}-q${qIdx}-exp`);
+  const opts = card.querySelectorAll('.option-btn');
+
+  opts.forEach(btn => btn.disabled = true);
+
+  if (optIdx === correct) {
+    opts[optIdx].classList.add('correct');
+    card.classList.add('answered-correct');
+    icon.textContent = '✓';
+    icon.style.color = 'var(--green)';
+  } else {
+    opts[optIdx].classList.add('wrong');
+    opts[correct].classList.add('show-correct');
+    card.classList.add('answered-wrong');
+    icon.textContent = '✗';
+    icon.style.color = 'var(--red)';
+  }
+
+  exp.classList.add('show');
+  updateScore(id);
+}
+
+function updateScore(id) {
+  const data = id === 'q02' ? Q02 : Q03;
+  const total = data.length;
+  let correct = 0, wrong = 0;
+
+  Object.keys(state[id]).forEach(k => {
+    if (state[id][k] === data[k].ans) correct++;
+    else wrong++;
+  });
+
+  const answered = Object.keys(state[id]).length;
+  const remain = total - answered;
+
+  document.getElementById(`${id}-correct`).textContent = correct;
+  document.getElementById(`${id}-wrong`).textContent = wrong;
+  document.getElementById(`${id}-remain`).textContent = remain;
+  document.getElementById(`${id}-prog`).style.width = `${(answered/total)*100}%`;
+  document.getElementById(`${id}-prog-text`).textContent = `${answered} / ${total} dijawab`;
+}
+
+function resetQuiz(id) {
+  const data = id === 'q02' ? Q02 : Q03;
+  buildQuiz(id, data);
+}
+
+function buildCheat(id, data) {
+  const grid = document.getElementById(`${id}-cheat-grid`);
+  const labels = ['A','B','C','D','E'];
+  grid.innerHTML = data.map((item, i) => `
+    <div class="cheat-item">
+      <div class="cheat-q"><strong>${i+1}.</strong> ${item.q.length > 100 ? item.q.substring(0,97)+'...' : item.q}</div>
+      <div class="cheat-a">${labels[item.ans]}. ${item.opts[item.ans]}</div>
+    </div>
+  `).join('');
+}
+
+function switchQuiz(id) {
+  document.querySelectorAll('.quiz-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function switchInner(quizId, panel) {
+  const section = document.getElementById(quizId);
+  section.querySelectorAll('.inner-panel').forEach(p => p.classList.remove('active'));
+  section.querySelectorAll('.inner-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(`${quizId}-${panel}`).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// INIT
+buildQuiz('q02', Q02);
+buildQuiz('q03', Q03);
+buildCheat('q02', Q02);
+buildCheat('q03', Q03);
+</script>
+</body>
+</html>
